@@ -1,6 +1,10 @@
 # 2025 - MSMIN5IN43 - IA probabiliste, théorie de jeux et machine learning
 
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions)
+
 Projet pédagogique d'exploration des approches d'intelligence artificielle probabilistes, de la théorie des jeux et du machine learning pour les étudiants de l'EPF.
+
+> Remarque : remplacez `OWNER/REPO` dans le badge CI par votre dépôt GitHub pour afficher le statut réel de la CI.
 
 ---
 
@@ -265,6 +269,49 @@ En Reinforcement Learning, au lieu d'apprendre juste une politique, l'agent appr
 ## 📚 Ressources Générales
 
 - **HuggingFace** : Pour les modèles et datasets (NLP, CV, Audio).
-- **Kaggle** : Pour trouver des datasets propres et des notebooks d'exemple.
+- **Kaggle** : Pour trouver desdatasets propres et des notebooks d'exemple.
 - **PapersWithCode** : Pour trouver l'état de l'art sur une tâche donnée.
 - **ArXiv** : Pour les papiers de recherche originaux.
+
+---
+
+## Projet : Bayesian Sports Analytics (implémentation)
+
+Ce dépôt contient désormais un scaffold complet pour le sujet **Bayesian Sports Analytics** (football) : collecte de données, stockage, pipeline d'inférence bayésienne et visualisation.
+
+- **Démarrage rapide** :
+  - Copier `.env.example` en `.env` si vous souhaitez personnaliser les variables d'environnement.
+  - Lancer l'infrastructure : `docker compose up --build`.
+  - Frontend : http://localhost:3000
+  - Backend API : http://localhost:8000
+
+- **Fonctionnalités présentes (scaffold initial)** :
+  - Backend FastAPI avec endpoints de santé et d'API : `/api/scrape`, `/api/data/matches`, `/api/jobs/{job_id}`.
+  - Worker RQ (Redis) pour exécution asynchrone des tâches de scraping et des inférences.
+  - Scraper de démonstration qui télécharge un dataset open-source de matches et le stocke dans `backend/data/matches.json`.
+  - Frontend Vite + React + Mantine avec un tableau de bord et un bouton `Rescrape`.
+  - Docker Compose orchestration (Postgres, Redis, backend, worker, frontend).
+
+- **Prochaines étapes (prioritaires)** :
+  1. Compléter l'ingestion : normaliser les données, peupler la DB Postgres et créer endpoints CRUD.
+  2. Intégrer un pipeline PyMC + notebooks explicatifs (modèle de Poisson hiérarchique, diagnostics ArviZ).
+  3. Tests, CI (GitHub Actions) et documentation pédagogique complète (objectif 20/20).
+
+---
+
+## API DB (endpoints utiles)
+- `GET /api/db/teams` — liste des équipes enregistrées.
+- `GET /api/db/matches?team=<TeamName>&limit=100&offset=0` — liste des matches potentiellement filtrée par équipe.
+
+Vous pouvez lancer une collecte (scrape) via `POST /api/scrape`, puis surveiller l'état du job via `GET /api/jobs/{job_id}`. Le job importe également les données dans la base Postgres.
+
+### Inférences bayésiennes (endpoints)
+- `POST /api/infer` — lance un job d'inférence bayésienne asynchrone (PyMC, ADVI) sur les matches présents dans la DB. Renvoie `job_id`.
+- `GET /api/infer/results/{job_id}` — récupère le fichier JSON des résultats une fois l'inférence terminée (attack means, summary stats et échantillons postérieurs tronqués pour visualisation).
+
+Note: l'inférence supporte maintenant deux méthodes : **ADVI** (par défaut, rapide) et **MCMC** (option `method=mcmc`, plus précis mais plus lent). Vous pouvez lancer `POST /api/infer?method=mcmc&draws=300&tune=300` pour exécuter un MCMC court (ex: draws=300, tune=300) depuis le frontend. Le frontend propose des visualisations basiques (trace de `mu`, histogramme du paramètre `attack` pour une équipe sélectionnée) et un panneau de diagnostics (R̂, ESS).
+
+
+---
+
+*Si vous voulez, je peux maintenant : 1) compléter l'ingestion (parsing / insertion DB / exemples), 2) ajouter les notebooks PyMC pédagogiques, 3) enrichir l'UI avec graphiques de force d'équipes. Indiquez si je commence par (1) ingestion ou (2) modèles PyMC.*
