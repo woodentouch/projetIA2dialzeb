@@ -36,6 +36,8 @@ class TrainResponse(BaseModel):
     alpha_default: float
 
 # Entraîne un modèle depuis un CSV uploadé et retourne les métadonnées
+
+
 @app.post("/train", response_model=TrainResponse)
 async def train_endpoint(
     file: UploadFile = File(...),
@@ -48,7 +50,8 @@ async def train_endpoint(
         content = await file.read()
         df = pd.read_csv(pd.io.common.BytesIO(content))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Impossible de lire le CSV: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Impossible de lire le CSV: {e}")
 
     try:
         meta = train_mapie_from_dataframe(
@@ -59,7 +62,8 @@ async def train_endpoint(
             alpha=alpha,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors de l'entraînement: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Erreur lors de l'entraînement: {e}")
 
     return TrainResponse(**meta)
 
@@ -77,26 +81,32 @@ class PredictResponseItem(BaseModel):
     upper: float
 
 # Prédit pour un batch d'instances et renvoie prediction + intervalle pour chaque instance
+
+
 @app.post("/predict", response_model=List[PredictResponseItem])
 def predict_endpoint(req: PredictRequest):
     path = os.path.join(MODELS_DIR, req.model_filename)
-    if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="model_filename introuvable")
-
     try:
         model_obj = load_model(path)
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404, detail="model_filename introuvable")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur chargement modèle: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Erreur chargement modèle: {e}")
 
     try:
         X = pd.DataFrame(req.instances)
         results = predict_with_intervals(model_obj, X, alpha=req.alpha)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la prédiction: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Erreur lors de la prédiction: {e}")
 
     return results
 
 # Liste les modèles sauvegardés avec leurs métadonnées
+
+
 @app.get("/models")
 def list_models():
     models = []
@@ -117,10 +127,13 @@ def list_models():
                 }
             )
         except Exception:
-            models.append({"filename": fname, "path": path, "error": "unable to load metadata"})
+            models.append({"filename": fname, "path": path,
+                          "error": "unable to load metadata"})
     return models
 
 # Retourne la liste des features et leur type estimé pour un modèle donné
+
+
 @app.get("/models/{model_filename}/features")
 def model_features(model_filename: str):
     path = os.path.join(MODELS_DIR, model_filename)
@@ -130,7 +143,8 @@ def model_features(model_filename: str):
     try:
         saved = joblib.load(path)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Impossible de charger le modèle: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Impossible de charger le modèle: {e}")
 
     feature_names = saved.get("feature_names", [])
     feature_types_saved = saved.get("feature_types")
@@ -142,6 +156,8 @@ def model_features(model_filename: str):
     return result
 
 # Page d'accueil minimaliste listant les endpoints
+
+
 @app.get("/")
 def root():
     return {"msg": "Conformal Prediction API - endpoints: /train, /predict, /models, /models/{model_filename}/features"}

@@ -24,6 +24,9 @@ from sklearn.preprocessing import OneHotEncoder
 import joblib
 import numpy as np
 
+# Import de la fonction centralisée depuis app.conformal
+from app.conformal import extract_lower_upper as extract_lower_upper_from_mapie
+
 # Import MAPIE de façon résiliente
 try:
     from mapie.regression import MapieRegressor
@@ -116,43 +119,7 @@ def build_pipeline_and_types(df: pd.DataFrame, exclude_ids: list = None):
     return pipeline, feature_cols, feature_types
 
 
-def extract_lower_upper_from_mapie(y_pred: np.ndarray, y_pis: np.ndarray):
-    """
-    Robust extraction of lower and upper intervals from MAPIE y_pis.
-    Handles shapes like (n, n_alpha, 2), (n,2), (n, n_alpha, 1) etc.
-    """
-    arr = np.asarray(y_pis)
-    if arr.ndim == 3:
-        n_samples, n_alpha, last = arr.shape
-        if last == 2:
-            lower = arr[:, 0, 0]
-            upper = arr[:, 0, 1]
-            return lower, upper
-        if last == 1:
-            # e.g. shape (n,2,1) -> squeeze or interpret as delta
-            if n_alpha == 2:
-                squeezed = arr.squeeze(axis=2)  # (n,2)
-                lower = squeezed[:, 0]
-                upper = squeezed[:, 1]
-                return lower, upper
-            delta = arr[:, 0, 0]
-            lower = y_pred - delta
-            upper = y_pred + delta
-            return lower, upper
-        raise RuntimeError(f"Unexpected y_pis shape (ndim==3): {arr.shape}")
-    elif arr.ndim == 2:
-        if arr.shape[1] == 2:
-            lower = arr[:, 0]
-            upper = arr[:, 1]
-            return lower, upper
-        if arr.shape[1] == 1:
-            delta = arr[:, 0]
-            lower = y_pred - delta
-            upper = y_pred + delta
-            return lower, upper
-        raise RuntimeError(f"Unexpected y_pis shape (ndim==2): {arr.shape}")
-    else:
-        raise RuntimeError(f"Unexpected y_pis ndim: {arr.ndim}")
+
 
 
 def main():

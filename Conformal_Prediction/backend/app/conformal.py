@@ -22,7 +22,7 @@ MODELS_DIR = "models"
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 
-def _extract_lower_upper(y_pred: np.ndarray, y_pis: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def extract_lower_upper(y_pred: np.ndarray, y_pis: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     Extraire lower et upper à partir de y_pis retourné par MAPIE.
     Supporte plusieurs formats possibles de y_pis :
@@ -53,7 +53,8 @@ def _extract_lower_upper(y_pred: np.ndarray, y_pis: np.ndarray) -> Tuple[np.ndar
             lower = y_pred - delta
             upper = y_pred + delta
             return lower, upper
-        raise RuntimeError(f"Format inattendu de y_pis (ndim==3) shape={arr.shape}")
+        raise RuntimeError(
+            f"Format inattendu de y_pis (ndim==3) shape={arr.shape}")
 
     if arr.ndim == 2:
         if arr.shape[1] == 2:
@@ -65,7 +66,8 @@ def _extract_lower_upper(y_pred: np.ndarray, y_pis: np.ndarray) -> Tuple[np.ndar
             lower = y_pred - delta
             upper = y_pred + delta
             return lower, upper
-        raise RuntimeError(f"Format inattendu de y_pis (ndim==2) shape={arr.shape}")
+        raise RuntimeError(
+            f"Format inattendu de y_pis (ndim==2) shape={arr.shape}")
 
     raise RuntimeError(f"Format inattendu de y_pis (ndim={arr.ndim})")
 
@@ -95,7 +97,8 @@ def train_mapie_from_dataframe(
         rf_kwargs = {"n_estimators": 100, "n_jobs": -1}
 
     if target_col not in df.columns:
-        raise ValueError(f"target_col '{target_col}' introuvable dans le DataFrame")
+        raise ValueError(
+            f"target_col '{target_col}' introuvable dans le DataFrame")
 
     X = df.drop(columns=[target_col]).reset_index(drop=True)
     y = df[target_col].reset_index(drop=True)
@@ -122,8 +125,9 @@ def train_mapie_from_dataframe(
     except Exception:
         y_pred_cal, y_pis_cal = mapie.predict(X_cal.values, alpha=alpha)
 
-    lower, upper = _extract_lower_upper(y_pred_cal, y_pis_cal)
-    coverage = float(np.mean((y_cal.values >= lower) & (y_cal.values <= upper)))
+    lower, upper = extract_lower_upper(y_pred_cal, y_pis_cal)
+    coverage = float(np.mean((y_cal.values >= lower)
+                     & (y_cal.values <= upper)))
 
     saved = {
         "model": mapie,
@@ -179,10 +183,11 @@ def predict_with_intervals(
     except Exception:
         y_pred, y_pis = mapie.predict(X_ordered.values, alpha=alpha)
 
-    lower, upper = _extract_lower_upper(y_pred, y_pis)
+    lower, upper = extract_lower_upper(y_pred, y_pis)
 
     results = []
     for pred, lo, up in zip(y_pred, lower, upper):
-        results.append({"prediction": float(pred), "lower": float(lo), "upper": float(up)})
+        results.append({"prediction": float(pred),
+                       "lower": float(lo), "upper": float(up)})
 
     return results

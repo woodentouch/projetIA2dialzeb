@@ -3,8 +3,10 @@ import pandas as pd
 import numpy as np
 
 API_URL = "http://127.0.0.1:8000/predict"
-MODEL_FILENAME = "ames_rf_mapie.joblib"  # nom du fichier dans le dossier models/
-CSV_PATH = "data/ames.csv"
+# nom du fichier dans le dossier models/
+MODEL_FILENAME = "ames_rf_mapie.joblib"
+CSV_PATH = "backend/data/ames.csv"
+
 
 def build_instance_from_csv(n=1):
     df = pd.read_csv(CSV_PATH)
@@ -33,15 +35,19 @@ def build_instance_from_csv(n=1):
         records.append(rec)
     return records
 
+
 def main():
     instances = build_instance_from_csv(n=3)
-    payload = {"model_filename": MODEL_FILENAME, "instances": instances, "alpha": 0.05}
+    payload = {"model_filename": MODEL_FILENAME,
+               "instances": instances, "alpha": 0.05}
     resp = requests.post(API_URL, json=payload)
     if resp.status_code == 200:
         for i, item in enumerate(resp.json()):
-            print(f"Instance {i}: pred={item['prediction']:.2f}, lower={item['lower']:.2f}, upper={item['upper']:.2f}")
+            print(
+                f"Instance {i}: pred={item['prediction']:.2f}, lower={item['lower']:.2f}, upper={item['upper']:.2f}")
     else:
         print("Erreur API:", resp.status_code, resp.text)
+
 
 if __name__ == "__main__":
     main()
