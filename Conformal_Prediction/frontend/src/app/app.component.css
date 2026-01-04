@@ -106,26 +106,42 @@
   margin-bottom: 8px;
 }
 
-/* Input with visible arrows */
-.input-container {
-  margin-top: 32px;
-}
-.operational-input {
-  text-align: center !important;
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 2rem;
 }
 
-/* Force show and style number input spinners (WebKit/Blink) */
-.operational-input::-webkit-inner-spin-button,
-.operational-input::-webkit-outer-spin-button {
-  opacity: 1 !important;
-  -webkit-appearance: inner-spin-button !important;
-  cursor: pointer;
-  position: relative;
-  right: -10px; /* Adjust position */
+.form-field-wrapper {
+  display: flex;
 }
-/* Basic styling for Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
+
+.form-field {
+  width: 100%;
+}
+
+.submit-container {
+  margin-top: 2rem;
+}
+
+.submit-container button {
+  min-width: 200px;
+}
+
+.mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: #333;
+}
+
+.error-message {
+  color: #b71c1c;
+  margin-top: 1rem;
+  font-style: italic;
 }
 
 

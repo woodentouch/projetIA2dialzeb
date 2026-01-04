@@ -80,6 +80,12 @@ class PredictResponseItem(BaseModel):
     lower: float
     upper: float
 
+
+class PredictSingleRequest(BaseModel):
+    alpha: float
+    features: Dict[str, Any]
+
+
 # Prédit pour un batch d'instances et renvoie prediction + intervalle pour chaque instance
 
 
@@ -103,6 +109,39 @@ def predict_endpoint(req: PredictRequest):
             status_code=400, detail=f"Erreur lors de la prédiction: {e}")
 
     return results
+
+
+@app.post("/predict_single", response_model=PredictResponseItem)
+def predict_single_endpoint(req: PredictSingleRequest):
+    model_filename = "ames_rf_mapie.joblib"
+    path = os.path.join(MODELS_DIR, model_filename)
+    try:
+        model_obj = load_model(path)
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404, detail=f"Modèle par défaut '{model_filename}' introuvable.")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Erreur chargement modèle: {e}")
+
+    try:
+        # Le modèle attend un DataFrame, même pour une seule instance
+        X = pd.DataFrame([req.features])
+        # Les colonnes numériques envoyées en JSON peuvent être des strings, on les convertit
+        for col in X.select_dtypes(include=['object']).columns:
+            X[col] = pd.to_numeric(X[col], errors='ignore')
+
+        results = predict_with_intervals(model_obj, X, alpha=req.alpha)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Erreur lors de la prédiction: {e}")
+
+    if not results:
+        raise HTTPException(
+            status_code=500, detail="La prédiction n'a retourné aucun résultat.")
+
+    return results[0]
+
 
 # Liste les modèles sauvegardés avec leurs métadonnées
 

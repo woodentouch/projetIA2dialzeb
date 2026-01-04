@@ -10,32 +10,49 @@
 <main class="main-content">
 
   <div class="intro-text">
-    <p>Définissez votre estimation pour générer un intervalle de confiance mathématiquement garanti.</p>
+    <p>Définissez les caractéristiques de votre bien pour générer un intervalle de confiance.</p>
   </div>
 
   <div class="simulator-controls">
-    <!-- Prediction Input -->
-    <div class="input-container">
-      <mat-form-field appearance="fill">
-        <mat-label>Estimation ponctuelle</mat-label>
-        <input class="operational-input" matInput type="number" [(ngModel)]="prediction" (ngModelChange)="onValueChange()">
-        <span matSuffix>€</span>
-      </mat-form-field>
+    <!-- Formulaire dynamique pour les caractéristiques -->
+    <div class="form-container">
+      <div *ngFor="let feature of allFeatures" class="form-field-wrapper">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ feature }}</mat-label>
+          <input matInput 
+                 [type]="isNumeric(feature) ? 'number' : 'text'" 
+                 [(ngModel)]="formData[feature]"
+                 [name]="feature">
+        </mat-form-field>
+      </div>
     </div>
 
     <!-- Confidence Slider -->
     <div class="slider-container">
-      <label class="slider-label">Ajustez le curseur pour définir le niveau de rigueur statistique.</label>
+      <label class="slider-label">Ajustez le curseur pour définir le niveau de rigueur statistique ({{confidence}}%).</label>
       <mat-slider min="80" max="99" step="1" discrete="true">
-        <input matSliderThumb [(ngModel)]="confidence" (ngModelChange)="onValueChange()">
+        <input matSliderThumb [(ngModel)]="confidence">
       </mat-slider>
+    </div>
+
+    <!-- Bouton de soumission -->
+    <div class="submit-container">
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Estimer l'intervalle</span>
+        <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+      </button>
     </div>
   </div>
 
   <!-- Results -->
   <div class="results-container" [class.fading]="isFading">
-    <p class="result-label">Voici votre zone de prédiction sécurisée.</p>
-    <p class="interval-text">{{ lowerBound | number:'1.0-0' }}€ &mdash; {{ upperBound | number:'1.0-0' }}€</p>
+    <div *ngIf="lowerBound !== null && upperBound !== null && !isLoading">
+      <p class="result-label">Voici votre zone de prédiction sécurisée.</p>
+      <p class="interval-text">{{ lowerBound | number:'1.0-0' }}€ &mdash; {{ upperBound | number:'1.0-0' }}€</p>
+    </div>
+    <div *ngIf="predictionError" class="error-message">
+      <p>{{ predictionError }}</p>
+    </div>
   </div>
 
 </main>
