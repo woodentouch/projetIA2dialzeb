@@ -499,4 +499,168 @@ env = gym.make("Pendulum-v1", render_mode="human")
 
 ---
 
-✨ **Bon apprentissage !**
+---
+
+## 🐍 BONUS : Entraîner les agents sur Snake !
+
+Nous avons créé un **environnement Snake personnalisé avec Pygame** pour un visuel vraiment beau ! 🎨
+
+### Étape 0 : Structure créée
+
+```
+GroupeRL/
+├── envs/
+│   ├── __init__.py
+│   └── snake_env.py          ← Environnement Snake personnalisé
+├── scripts/
+│   ├── train_ppo_snake.py
+│   ├── train_dqn_snake.py
+│   ├── train_sac_snake.py
+│   ├── test_snake.py         ← Voir les serpents jouer
+│   └── benchmark_snake.py    ← Comparer les algos sur Snake
+├── models/
+│   └── ppo/dqn/sac_snake.zip
+└── results/
+    └── comparaison_snake.png
+```
+
+### Étape 1 : Entraîner les agents sur Snake
+
+#### 1.1 Entraîner PPO (3-5 min)
+```bash
+python scripts/train_ppo_snake.py
+```
+
+#### 1.2 Entraîner DQN (3-5 min)
+```bash
+python scripts/train_dqn_snake.py
+```
+
+#### 1.3 Entraîner SAC (3-5 min)
+```bash
+python scripts/train_sac_snake.py
+```
+
+**Temps total** : ~15 minutes
+
+### Étape 2 : Voir les serpents jouer avec Pygame 🐍
+
+```bash
+python scripts/test_snake.py
+```
+
+**Vous verrez** :
+- ✅ Une fenêtre avec une grille 10x10
+- 🐍 Un serpent vert qui se déplace
+- 🍎 Une pomme rouge à manger
+- 📊 Le score (pommes mangées) en haut
+- 🎮 3 épisodes par algorithme
+
+**Visuel** :
+```
+┌─────────────────────┐
+│ 🐍🐍🐍             │
+│       🍎            │  ← Actions : 0=Haut, 1=Droite
+│                     │    2=Bas, 3=Gauche
+│                     │
+└─────────────────────┘
+Score: 5  Length: 4  Steps: 127
+```
+
+### Étape 3 : Comparer les performances (2 min)
+
+```bash
+python scripts/benchmark_snake.py
+```
+
+**Génère** :
+- 6 graphiques comparant PPO vs DQN vs SAC
+- Tableau récapitulatif des résultats
+- Quel algo est le meilleur pour Snake ? 🏆
+- Fichier : `results/comparaison_snake.png`
+
+---
+
+### 🎮 Comment fonctionne Snake-v0 ?
+
+**Objectif** : Manger le plus de pommes possible
+
+**Actions** : 4 directions
+- 0 = Haut ⬆️
+- 1 = Droite ➡️
+- 2 = Bas ⬇️
+- 3 = Gauche ⬅️
+
+**Observation** : 6 variables (normalisées entre 0 et 1)
+1. Position X de la tête
+2. Position Y de la tête
+3. Position X de la pomme
+4. Position Y de la pomme
+5. Direction courante (0-3)
+6. Longueur du serpent (0-1)
+
+**Récompense** :
+- +10 : Manger une pomme 🍎
+- +0.1 : Chaque step (encourager le mouvement)
+- -10 : Collision avec mur ou corps
+
+**Fin du jeu** :
+- Collision avec mur ou le corps du serpent
+- Ou 500 steps (dépassement du temps limite)
+
+---
+
+### 📊 Résumé Snake vs CartPole
+
+| Aspect | CartPole | Snake |
+|--------|----------|-------|
+| **Complexité** | Très simple | Moyenne |
+| **Environnement** | Gymnasium standard | Personnalisé avec Pygame |
+| **Visuel** | Basique (texte) | Beau (Pygame) |
+| **Actions** | 2 (gauche/droite) | 4 (4 directions) |
+| **Observations** | 4 variables | 6 variables |
+| **Score max** | 500 | Illimité |
+| **Entraînement** | 50k steps | 100k steps |
+| **Temps** | 2-3 min | 3-5 min |
+
+---
+
+### 🚀 Commandes rapides Snake
+
+```powershell
+# Entraîner les 3 algos (15 min total)
+python scripts/train_ppo_snake.py
+python scripts/train_dqn_snake.py
+python scripts/train_sac_snake.py
+
+# Voir les agents jouer
+python scripts/test_snake.py
+
+# Comparer les résultats
+python scripts/benchmark_snake.py
+```
+
+---
+
+### 💡 Remarques importantes
+
+1. **Pygame est nécessaire** : Installé avec `pip install pygame` au début ✅
+
+2. **Entraînement plus long** : Snake est plus complexe que CartPole
+   - 100k steps vs 50k pour CartPole
+   - Mais toujours rapide (~3-5 min par algo)
+
+3. **Résultats prévisibles** :
+   - PPO : Bon et stable ✅
+   - DQN : Peut être moins stable sur Snake
+   - SAC : Adapté à continuo, mais fonctionne aussi ici
+
+4. **Améliorations possibles** :
+   - Augmenter la grille (15x15, 20x20)
+   - Ajouter des obstacles
+   - Changer les récompenses
+   - Entraîner plus longtemps
+
+---
+
+✨ **Bon apprentissage avec Snake !** 🐍🍎
