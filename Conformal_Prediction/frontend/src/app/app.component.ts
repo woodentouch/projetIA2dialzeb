@@ -36,6 +36,7 @@ export class AppComponent {
   confidence: number = 95;
   lowerBound: number | null = null;
   upperBound: number | null = null;
+  prediction: number | null = null;
   isFading: boolean = false;
   isLoading: boolean = false;
   predictionError: string | null = null;
@@ -264,37 +265,38 @@ export class AppComponent {
     return this.numericFields.includes(field);
   }
 
-  onSubmit(): void {
-    this.isLoading = true;
-    this.isFading = true;
-    this.predictionError = null;
-    this.lowerBound = null;
-    this.upperBound = null;
-
-    // Convertir les valeurs vides en null
-    const features: any = { ...this.formData };
-    for (const key in features) {
-      if (features[key] === '' || features[key] === undefined) {
-        features[key] = null;
+    onSubmit(): void {
+      this.isLoading = true;
+      this.isFading = true;
+      this.predictionError = null;
+      this.lowerBound = null;
+      this.upperBound = null;
+      this.prediction = null;
+  
+      // Convertir les valeurs vides en null
+      const features: any = { ...this.formData };
+      for (const key in features) {
+        if (features[key] === '' || features[key] === undefined) {
+          features[key] = null;
+        }
       }
-    }
-    
-    // L'alpha est 1 - (niveau de confiance / 100)
-    const alpha = 1 - (this.confidence / 100);
-
-    this.predictionService.predict(features, alpha).subscribe({
-      next: (result: PredictionInterval) => {
-        this.lowerBound = result.lower;
-        this.upperBound = result.upper;
-        this.isLoading = false;
-        setTimeout(() => { this.isFading = false; }, 50);
-      },
-      error: (err) => {
-        console.error('Erreur lors de la prédiction:', err);
-        this.predictionError = 'Une erreur est survenue lors de la communication avec le serveur. Vérifiez la console pour plus de détails.';
-        this.isLoading = false;
-        this.isFading = false;
-      }
-    });
-  }
-}
+      
+      // L'alpha est 1 - (niveau de confiance / 100)
+      const alpha = 1 - (this.confidence / 100);
+  
+      this.predictionService.predict(features, alpha).subscribe({
+        next: (result: any) => {
+          this.lowerBound = result.lower;
+          this.upperBound = result.upper;
+          this.prediction = result.prediction;
+          this.isLoading = false;
+          setTimeout(() => { this.isFading = false; }, 50);
+        },
+        error: (err) => {
+          console.error('Erreur lors de la prédiction:', err);
+          this.predictionError = 'Une erreur est survenue lors de la communication avec le serveur. Vérifiez la console pour plus de détails.';
+          this.isLoading = false;
+          this.isFading = false;
+        }
+      });
+    }}
