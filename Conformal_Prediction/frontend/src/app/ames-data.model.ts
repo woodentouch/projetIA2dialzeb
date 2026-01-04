@@ -2,6 +2,7 @@
 // basé sur les colonnes du fichier ames.csv.
 
 export interface AmesData {
+  [key: string]: number | string | null | undefined;
   'Order'?: number | null;
   'PID'?: number | null;
   'MS SubClass'?: number | null;

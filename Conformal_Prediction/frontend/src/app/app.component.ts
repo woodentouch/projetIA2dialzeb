@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
+
 
 import { AmesData } from './ames-data.model';
 import { PredictionService, PredictionInterval } from './prediction.service';
@@ -24,7 +26,8 @@ import { PredictionService, PredictionInterval } from './prediction.service';
     MatInputModule,
     MatSliderModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatExpansionModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -120,8 +123,44 @@ export class AppComponent {
     'Sale Condition': 'Normal'
   };
 
-  // Liste des features pour générer le formulaire, excluant les identifiants et la cible
-  allFeatures: (keyof AmesData)[] = Object.keys(this.formData) as (keyof AmesData)[];
+  featureGroups = [
+    {
+      name: 'Général',
+      features: ['MS SubClass', 'MS Zoning', 'Neighborhood', 'Bldg Type', 'House Style']
+    },
+    {
+      name: 'Lot',
+      features: ['Lot Frontage', 'Lot Area', 'Street', 'Alley', 'Lot Shape', 'Land Contour', 'Utilities', 'Lot Config', 'Land Slope']
+    },
+    {
+      name: 'Qualité & Condition',
+      features: ['Overall Qual', 'Overall Cond', 'Exter Qual', 'Exter Cond', 'Bsmt Qual', 'Bsmt Cond', 'Heating QC', 'Kitchen Qual', 'Fireplace Qu', 'Garage Qual', 'Garage Cond', 'Pool QC', 'Fence']
+    },
+    {
+      name: 'Construction',
+      features: ['Year Built', 'Year Remod/Add', 'Roof Style', 'Roof Matl', 'Exterior 1st', 'Exterior 2nd', 'Mas Vnr Type', 'Mas Vnr Area', 'Foundation', 'Heating', 'Central Air', 'Electrical', 'Functional']
+    },
+    {
+      name: 'Sous-sol',
+      features: ['Bsmt Exposure', 'BsmtFin Type 1', 'BsmtFin SF 1', 'BsmtFin Type 2', 'BsmtFin SF 2', 'Bsmt Unf SF', 'Total Bsmt SF', 'Bsmt Full Bath', 'Bsmt Half Bath']
+    },
+    {
+      name: 'Espaces de vie',
+      features: ['1st Flr SF', '2nd Flr SF', 'Low Qual Fin SF', 'Gr Liv Area', 'Full Bath', 'Half Bath', 'Bedroom AbvGr', 'Kitchen AbvGr', 'TotRms AbvGrd', 'Fireplaces']
+    },
+    {
+      name: 'Garage',
+      features: ['Garage Type', 'Garage Yr Blt', 'Garage Finish', 'Garage Cars', 'Garage Area', 'Paved Drive']
+    },
+    {
+      name: 'Extérieur',
+      features: ['Wood Deck SF', 'Open Porch SF', 'Enclosed Porch', '3Ssn Porch', 'Screen Porch', 'Pool Area', 'Misc Feature', 'Misc Val']
+    },
+    {
+      name: 'Vente',
+      features: ['Mo Sold', 'Yr Sold', 'Sale Type', 'Sale Condition']
+    }
+  ];
 
   numericFields: (keyof AmesData)[] = [
     'Lot Frontage', 'Lot Area', 'Overall Qual', 'Overall Cond', 'Year Built', 'Year Remod/Add',

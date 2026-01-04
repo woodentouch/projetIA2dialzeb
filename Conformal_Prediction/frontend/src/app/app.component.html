@@ -1,6 +1,5 @@
 <!-- Header with Fond 2 and Overlay -->
 <header class="page-header">
-  <div class="header-overlay"></div>
   <div class="header-content">
     <h1>L'élégance de la précision : La mathématique au service de la certitude.</h1>
   </div>
@@ -15,17 +14,26 @@
 
   <div class="simulator-controls">
     <!-- Formulaire dynamique pour les caractéristiques -->
-    <div class="form-container">
-      <div *ngFor="let feature of allFeatures" class="form-field-wrapper">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ feature }}</mat-label>
-          <input matInput 
-                 [type]="isNumeric(feature) ? 'number' : 'text'" 
-                 [(ngModel)]="formData[feature]"
-                 [name]="feature">
-        </mat-form-field>
-      </div>
-    </div>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let group of featureGroups">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ group.name }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="form-container">
+          <div *ngFor="let feature of group.features" class="form-field-wrapper">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ feature }}</mat-label>
+              <input matInput 
+                     [type]="isNumeric(feature) ? 'number' : 'text'" 
+                     [(ngModel)]="formData[feature]"
+                     [name]="feature">
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
 
     <!-- Confidence Slider -->
     <div class="slider-container">
@@ -37,7 +45,7 @@
 
     <!-- Bouton de soumission -->
     <div class="submit-container">
-      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
+      <button mat-raised-button class="submit-button" (click)="onSubmit()" [disabled]="isLoading">
         <span *ngIf="!isLoading">Estimer l'intervalle</span>
         <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
       </button>
