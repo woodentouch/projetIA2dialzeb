@@ -22,8 +22,8 @@ Ce projet implémente et compare trois algorithmes de Deep Reinforcement Learnin
 
 ```bash
 # Cloner le repository
-git clone https://github.com/Greg2805/Snake_RL.git
-cd Snake_RL
+git clone https://github.com/Unity1202/Snake_RL.git
+cd snake_RL_Alexis_Clement_Gregoire
 
 # Créer un environnement virtuel
 python3 -m venv venv
