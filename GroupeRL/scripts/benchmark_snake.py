@@ -17,7 +17,7 @@ from envs.snake_env import SnakeEnv
 os.makedirs("results", exist_ok=True)
 
 print("=" * 70)
-print("📊 BENCHMARK SNAKE : PPO vs DQN vs SAC")
+print("📊 BENCHMARK SNAKE : PPO vs DQN vs A2C")
 print("=" * 70)
 
 def evaluate_agent(model, env, num_episodes=20):
@@ -42,11 +42,14 @@ def evaluate_agent(model, env, num_episodes=20):
 # Créer l'environnement
 env = SnakeEnv(grid_size=10, render_mode=None)
 
+# Définir le chemin vers le dossier des modèles
+models_dir = os.path.join(os.path.dirname(__file__), '..', 'models')
+
 # Charger les modèles
 models = {
-    "PPO": PPO.load("models/ppo_snake"),
-    "DQN": DQN.load("models/dqn_snake"),
-    "A2C": A2C.load("models/a2c_snake"),
+    "PPO": PPO.load(os.path.join(models_dir, "ppo_snake")),
+    "DQN": DQN.load(os.path.join(models_dir, "dqn_snake")),
+    "A2C": A2C.load(os.path.join(models_dir, "a2c_snake")),
 }
 
 # Évaluer tous les modèles
@@ -120,20 +123,26 @@ ax4.grid(True, alpha=0.3, axis='y')
 # Graphique 5 : Comparaison radar
 ax5 = plt.subplot(2, 3, 5)
 metrics = ['Moyenne', 'Stabilité (1/σ)', 'Consistency']
+def get_consistency(scores):
+    mean_score = np.mean(scores)
+    if mean_score > 0:
+        return (np.max(scores) - np.min(scores)) / mean_score
+    return 0
+
 ppo_metrics = [
     np.mean(results['PPO']),
     1 / (np.std(results['PPO']) + 0.01),
-    (np.max(results['PPO']) - np.min(results['PPO'])) / np.mean(results['PPO'])
+    get_consistency(results['PPO'])
 ]
 dqn_metrics = [
     np.mean(results['DQN']),
     1 / (np.std(results['DQN']) + 0.01),
-    (np.max(results['DQN']) - np.min(results['DQN'])) / np.mean(results['DQN'])
+    get_consistency(results['DQN'])
 ]
-sac_metrics = [
-    np.mean(results['SAC']),
-    1 / (np.std(results['SAC']) + 0.01),
-    (np.max(results['SAC']) - np.min(results['SAC'])) / np.mean(results['SAC'])
+a2c_metrics = [
+    np.mean(results['A2C']),
+    1 / (np.std(results['A2C']) + 0.01),
+    get_consistency(results['A2C'])
 ]
 
 x_pos = np.arange(len(metrics))
@@ -141,7 +150,7 @@ width = 0.25
 
 ax5.bar(x_pos - width, ppo_metrics, width, label='PPO', alpha=0.7)
 ax5.bar(x_pos, dqn_metrics, width, label='DQN', alpha=0.7)
-ax5.bar(x_pos + width, sac_metrics, width, label='SAC', alpha=0.7)
+ax5.bar(x_pos + width, a2c_metrics, width, label='A2C', alpha=0.7)
 
 ax5.set_ylabel('Score normalisé', fontsize=11, fontweight='bold')
 ax5.set_title('Snake: Comparaison multi-critères', fontsize=12, fontweight='bold')
