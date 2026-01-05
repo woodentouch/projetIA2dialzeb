@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px 0; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>API Connectivity Test</h1>
+    
+    <button onclick="testAPI()">Test API Connection</button>
+    <button onclick="testPrediction()">Test Prediction</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Testing API health endpoint...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                result.innerHTML = `<p class="success">✅ API is reachable!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ API Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testPrediction() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Testing prediction endpoint...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/predict-match?team1=PSG&team2=Lyon`);
+                const data = await response.json();
+                
+                if (data.outcome_probabilities) {
+                    result.innerHTML = `<p class="success">✅ Prediction works!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = `<p class="error">❌ Invalid prediction data</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Prediction Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Auto-test on load
+        window.onload = () => {
+            testAPI();
+        };
+    </script>
+</body>
+</html>

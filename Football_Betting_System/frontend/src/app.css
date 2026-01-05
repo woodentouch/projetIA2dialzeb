@@ -1,0 +1,87 @@
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.custom-tab {
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 28px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.custom-tab:hover {
+  background: color-mix(in oklab, var(--mantine-color-blue-6) 15%, transparent);
+  transform: translateY(-2px);
+  border: 2px solid color-mix(in oklab, var(--mantine-color-blue-6) 30%, transparent);
+}
+
+.custom-tab[data-active] {
+  background: linear-gradient(135deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-grape-7) 100%);
+  box-shadow: 0 4px 15px color-mix(in oklab, var(--mantine-color-blue-6) 45%, transparent);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.lift-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.lift-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--mantine-shadow-lg);
+  border-color: color-mix(in oklab, var(--mantine-color-blue-6) 35%, var(--mantine-color-gray-4));
+}
+
+.lift-button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lift-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mantine-shadow-md);
+}

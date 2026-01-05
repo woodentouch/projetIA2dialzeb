@@ -1,0 +1,96 @@
+/* Custom Card Styles - No Mantine Classes */
+
+.custom-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.custom-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
+}
+
+/* Padding variants */
+.custom-card-padding-xs {
+  padding: 8px;
+}
+
+.custom-card-padding-sm {
+  padding: 12px;
+}
+
+.custom-card-padding-md {
+  padding: 16px;
+}
+
+.custom-card-padding-lg {
+  padding: 24px;
+}
+
+.custom-card-padding-xl {
+  padding: 32px;
+}
+
+/* Shadow variants */
+.custom-card-shadow-xs {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.custom-card-shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.custom-card-shadow-md {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.custom-card-shadow-lg {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.custom-card-shadow-xl {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Radius variants */
+.custom-card-radius-xs {
+  border-radius: 4px;
+}
+
+.custom-card-radius-sm {
+  border-radius: 8px;
+}
+
+.custom-card-radius-md {
+  border-radius: 12px;
+}
+
+.custom-card-radius-lg {
+  border-radius: 16px;
+}
+
+.custom-card-radius-xl {
+  border-radius: 20px;
+}
+
+/* Border */
+.custom-card-with-border {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-card-with-border:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

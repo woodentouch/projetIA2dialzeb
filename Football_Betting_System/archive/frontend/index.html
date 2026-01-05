@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚽ Football Betting AI</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
+    :root {
+      --primary: #00ff87;
+      --primary-dark: #00cc6a;
+      --secondary: #ff3366;
+      --bg-dark: #0a0e27;
+      --bg-card: #151b3d;
+      --bg-card-hover: #1a2147;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --border: #2d3748;
+      --shadow: rgba(0, 255, 135, 0.1);
+      --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(0, 255, 135, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 20%, rgba(255, 51, 102, 0.05) 0%, transparent 50%);
+      animation: drift 20s ease-in-out infinite;
+      z-index: 0;
+    }
+    
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -50px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+    
+    .navbar {
+      background: rgba(21, 27, 61, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 800;
+      padding: 20px 0;
+      background: linear-gradient(135deg, var(--primary), #667eea);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .navbar-menu {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .navbar button {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 20px 24px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.3px;
+    }
+    
+    .navbar button::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: var(--primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(-50%);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .navbar button:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .navbar button.active {
+      color: var(--primary);
+    }
+    
+    .navbar button.active::after {
+      width: 100%;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 30px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 30px 0 20px 0;
+      color: var(--text-primary);
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 18px;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+    
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+    
+    .event-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 28px;
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .event-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-1);
+      transform: scaleX(0);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .event-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 20px 40px var(--shadow);
+      transform: translateY(-4px);
+      background: var(--bg-card-hover);
+    }
+    
+    .event-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .teams {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 20px 0;
+      text-align: center;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    
+    .teams-vs {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    
+    .odds {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    
+    .odds-btn {
+      background: linear-gradient(135deg, rgba(0, 255, 135, 0.1), rgba(0, 255, 135, 0.05));
+      color: var(--primary);
+      border: 2px solid rgba(0, 255, 135, 0.3);
+      padding: 16px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .odds-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 255, 135, 0.2), rgba(0, 255, 135, 0.1));
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 255, 135, 0.2);
+    }
+    
+    .odds-btn:active {
+      transform: translateY(0);
+    }
+    
+    .odds-value {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 255, 135, 0.1);
+      color: var(--primary);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(0, 255, 135, 0.2);
+    }
+    
+    .status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .prediction-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 16px;
+      margin: 24px 0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .prediction-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .prediction-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--border);
+      padding: 20px 16px;
+      border-radius: 12px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .prediction-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-3);
+      transform: scaleX(0);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .prediction-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 255, 135, 0.15);
+    }
+    
+    .prediction-item:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .prediction-prob {
+      font-size: 32px;
+      color: var(--primary);
+      font-weight: 800;
+      margin: 8px 0;
+      letter-spacing: -1px;
+    }
+    
+    .prediction-label {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .bets-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      margin-top: 30px;
+    }
+    
+    .bets-table th {
+      background: var(--bg-card);
+      padding: 16px 20px;
+      text-align: left;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      border: 1px solid var(--border);
+    }
+    
+    .bets-table th:first-child {
+      border-radius: 12px 0 0 12px;
+    }
+    
+    .bets-table th:last-child {
+      border-radius: 0 12px 12px 0;
+    }
+    
+    .bets-table td {
+      background: var(--bg-card);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-right: none;
+      border-left: none;
+      font-weight: 500;
+    }
+    
+    .bets-table tr {
+      transition: all 0.3s;
+    }
+    
+    .bets-table tbody tr:hover td {
+      background: var(--bg-card-hover);
+    }
+    
+    .bets-table tbody tr td:first-child {
+      border-left: 1px solid var(--border);
+      border-radius: 12px 0 0 12px;
+    }
+    
+    .bets-table tbody tr td:last-child {
+      border-right: 1px solid var(--border);
+      border-radius: 0 12px 12px 0;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+    
+    .loading::after {
+      content: '⚽';
+      font-size: 48px;
+      display: block;
+      margin-top: 20px;
+      animation: bounce 1s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .error {
+      background: linear-gradient(135deg, rgba(255, 51, 102, 0.1), rgba(255, 51, 102, 0.05));
+      border: 2px solid var(--secondary);
+      color: var(--secondary);
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+    
+    .success {
+      background: linear-gradient(135deg, rgba(0, 255, 135, 0.1), rgba(0, 255, 135, 0.05));
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--bg-dark);
+      border: none;
+      padding: 16px 32px;
+      cursor: pointer;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin: 10px 5px;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 12px rgba(0, 255, 135, 0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 255, 135, 0.4);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .input-group {
+      background: var(--bg-card);
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin: 30px 0;
+    }
+    
+    .input-group h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      align-items: end;
+    }
+    
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .form-field label {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-field select,
+    .form-field input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .form-field select:focus,
+    .form-field input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.1);
+    }
+    
+    .stats-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 16px;
+      margin: 16px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stats-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px var(--shadow);
+      transform: translateX(4px);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 28px;
+      align-items: center;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .team-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .strength-badge {
+      background: var(--bg-dark);
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    
+    .strength-badge span {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 20px;
+    }
+    
+    @media (max-width: 968px) {
+      .events-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; gap: 16px; }
+      h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-brand">
+        <span>⚽</span>
+        <span>Opta-Level AI</span>
+      </div>
+      <div class="navbar-menu">
+        <button class="nav-btn active" onclick="switchSection('matches')">🏟️ Matchs</button>
+        <button class="nav-btn" onclick="switchSection('predictions')">🤖 Prédictions</button>
+        <button class="nav-btn" onclick="switchSection('bets')">💰 Mes Paris</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Section Matchs -->
+    <div id="matches" class="section active">
+      <h1>Matchs Disponibles</h1>
+      <p class="subtitle">Sélectionnez un match et placez vos paris avec les meilleures côtes</p>
+      <div id="events-container" class="loading">Chargement des matchs...</div>
+    </div>
+
+    <!-- Section Prédictions -->
+    <div id="predictions" class="section">
+      <h1>Prédictions IA Avancées</h1>
+      <p class="subtitle">Analyse TrueSkill Bayésienne avec modèle hiérarchique Poisson pour prédictions professionnelles</p>
+      
+      <div class="input-group">
+        <h3>🎯 Sélectionner un Match à Analyser</h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Équipe Domicile</label>
+            <select id="team1-select">
+              <option>-- Sélectionner équipe 1 --</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Équipe Extérieure</label>
+            <select id="team2-select">
+              <option>-- Sélectionner équipe 2 --</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <button class="btn" onclick="predictMatch()" style="width: 100%; margin: 0;">
+              Analyser le Match
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="prediction-result"></div>
+      
+      <h2 style="margin-top: 60px;">📊 Classement des Équipes</h2>
+      <p class="subtitle">Force, attaque et défense basées sur les performances historiques</p>
+      <div id="team-stats-container" class="loading">Chargement des statistiques...</div>
+    </div>
+
+    <!-- Section Mes Paris -->
+    <div id="bets" class="section">
+      <h1>Mes Paris</h1>
+      <p class="subtitle">Historique complet de vos paris avec statuts en temps réel</p>
+      <div id="bets-container" class="loading">Chargement des paris...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:8000/api';
+    let allTeams = [];
+
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      
+      document.getElementById(sectionId).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (sectionId === 'bets') loadBets();
+      if (sectionId === 'matches') loadEvents();
+      if (sectionId === 'predictions') {
+        loadTeamStats();
+        loadTeamsForSelect();
+      }
+    }
+
+    async function loadEvents() {
+      const container = document.getElementById('events-container');
+      container.innerHTML = '<div class="loading">Chargement des matchs...</div>';
+      
+      try {
+        const res = await fetch(`${API_URL}/events`);
+        const data = await res.json();
+        const events = Array.isArray(data) ? data : (data.events || []);
+        
+        if (!events.length) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 60px;">Aucun match disponible pour le moment.</p>';
+          return;
+        }
+        
+        container.innerHTML = `<div class="events-grid">
+          ${events.map(event => `
+            <div class="event-card">
+              <div class="status">${event.status}</div>
+              <div class="teams">
+                <span>${event.team1}</span>
+                <span class="teams-vs">VS</span>
+                <span>${event.team2}</span>
+              </div>
+              <div style="font-size: 13px; color: var(--text-secondary); text-align: center; margin: 12px 0;">
+                📅 ${new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+              <div class="odds">
+                <button class="odds-btn" onclick="placeBet(${event.id}, 'team1', ${event.odds_team1})">
+                  <span style="font-size: 11px; opacity: 0.8;">${event.team1}</span>
+                  <span class="odds-value">${event.odds_team1.toFixed(2)}</span>
+                </button>
+                <button class="odds-btn" onclick="placeBet(${event.id}, 'draw', ${event.odds_draw})">
+                  <span style="font-size: 11px; opacity: 0.8;">Match Nul</span>
+                  <span class="odds-value">${event.odds_draw.toFixed(2)}</span>
+                </button>
+                <button class="odds-btn" onclick="placeBet(${event.id}, 'team2', ${event.odds_team2})">
+                  <span style="font-size: 11px; opacity: 0.8;">${event.team2}</span>
+                  <span class="odds-value">${event.odds_team2.toFixed(2)}</span>
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+        
+        // Collecter les équipes
+        allTeams = [...new Set(events.flatMap(e => [e.team1, e.team2]))].sort();
+      } catch (error) {
+        container.innerHTML = `<div class="error">⚠️ Erreur de chargement: ${error.message}</div>`;
+      }
+    }
+
+    async function loadTeamsForSelect() {
+      try {
+        const res = await fetch(`${API_URL}/events`);
+        const data = await res.json();
+        const events = Array.isArray(data) ? data : (data.events || []);
+        allTeams = [...new Set(events.flatMap(e => [e.team1, e.team2]))].sort();
+        
+        const select1 = document.getElementById('team1-select');
+        const select2 = document.getElementById('team2-select');
+        
+        allTeams.forEach(team => {
+          select1.innerHTML += `<option>${team}</option>`;
+          select2.innerHTML += `<option>${team}</option>`;
+        });
+      } catch (error) {
+        console.error('Error loading teams:', error);
+      }
+    }
+
+    async function predictMatch() {
+      const team1 = document.getElementById('team1-select').value;
+      const team2 = document.getElementById('team2-select').value;
+      
+      if (team1.startsWith('--') || team2.startsWith('--')) {
+        alert('⚠️ Veuillez sélectionner deux équipes');
+        return;
+      }
+      
+      if (team1 === team2) {
+        alert('⚠️ Veuillez sélectionner deux équipes différentes');
+        return;
+      }
+      
+      const resultDiv = document.getElementById('prediction-result');
+      resultDiv.innerHTML = '<div class="loading">Analyse en cours avec IA TrueSkill...</div>';
+      
+      try {
+        const res = await fetch(`${API_URL}/predict-match?team1=${team1}&team2=${team2}`);
+        const prediction = await res.json();
+        
+        if (prediction.error) {
+          resultDiv.innerHTML = `<div class="error">⚠️ ${prediction.error}</div>`;
+          return;
+        }
+        
+        const maxProb = Math.max(prediction.home_win_prob, prediction.draw_prob, prediction.away_win_prob);
+        const result = maxProb === prediction.home_win_prob ? prediction.team1 
+                     : maxProb === prediction.away_win_prob ? prediction.team2 
+                     : 'Match Nul';
+        
+        resultDiv.innerHTML = `
+          <div class="prediction-card">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="margin: 0 0 12px 0; font-size: 28px;">${prediction.team1} vs ${prediction.team2}</h2>
+              <div style="display: inline-flex; align-items: center; gap: 10px; background: rgba(0, 255, 135, 0.1); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(0, 255, 135, 0.3);">
+                <span style="color: var(--text-secondary); font-size: 13px; font-weight: 600;">PRÉDICTION:</span>
+                <span style="color: var(--primary); font-size: 18px; font-weight: 800;">${result}</span>
+                <span style="color: var(--text-secondary); font-size: 13px;">(${(maxProb * 100).toFixed(1)}%)</span>
+              </div>
+            </div>
+            
+            <div class="prediction-grid">
+              <div class="prediction-item" style="${maxProb === prediction.home_win_prob ? 'border-color: var(--primary); background: rgba(0, 255, 135, 0.05);' : ''}">
+                <div class="prediction-label">🏠 ${prediction.team1}</div>
+                <div class="prediction-prob">${(prediction.home_win_prob * 100).toFixed(1)}%</div>
+              </div>
+              <div class="prediction-item" style="${maxProb === prediction.draw_prob ? 'border-color: var(--primary); background: rgba(0, 255, 135, 0.05);' : ''}">
+                <div class="prediction-label">🤝 Match Nul</div>
+                <div class="prediction-prob">${(prediction.draw_prob * 100).toFixed(1)}%</div>
+              </div>
+              <div class="prediction-item" style="${maxProb === prediction.away_win_prob ? 'border-color: var(--primary); background: rgba(0, 255, 135, 0.05);' : ''}">
+                <div class="prediction-label">✈️ ${prediction.team2}</div>
+                <div class="prediction-prob">${(prediction.away_win_prob * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; padding: 18px; background: rgba(0, 0, 0, 0.3); border-radius: 10px;">
+              <div style="text-align: center;">
+                <div style="color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">⚽ Buts Attendus</div>
+                <div style="font-size: 26px; font-weight: 800; color: var(--primary);">
+                  ${prediction.expected_home_goals.toFixed(2)} - ${prediction.expected_away_goals.toFixed(2)}
+                </div>
+              </div>
+              <div style="text-align: center;">
+                <div style="color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">📊 Confiance</div>
+                <div style="font-size: 20px; font-weight: 800; color: ${prediction.confidence === 'high' ? 'var(--primary)' : prediction.confidence === 'medium' ? '#fbbf24' : '#f87171'};">
+                  ${prediction.confidence === 'high' ? '🔥 ÉLEVÉ' : prediction.confidence === 'medium' ? '⚡ MOYEN' : '⚠️ FAIBLE'}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="error">⚠️ Erreur: ${error.message}</div>`;
+      }
+    }
+
+    async function loadTeamStats() {
+      const container = document.getElementById('team-stats-container');
+      container.innerHTML = '<div class="loading">Chargement des statistiques...</div>';
+      
+      try {
+        const res = await fetch(`${API_URL}/team-stats`);
+        const stats = await res.json();
+        
+        if (Object.keys(stats).length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">📊 Le modèle est en cours d\'entraînement. Revenez après quelques matchs.</p>';
+          return;
+        }
+        
+        const html = Object.entries(stats)
+          .sort((a, b) => b[1].strength - a[1].strength)
+          .map(([team, stat], index) => `
+            <div class="stats-card">
+              <div class="stats-grid">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <div style="background: var(--gradient-1); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">
+                      ${index + 1}
+                    </div>
+                    <div class="team-name">${team}</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="stat-label">⚔️ Attaque</div>
+                  <div class="stat-value">${stat.attack.toFixed(2)}</div>
+                </div>
+                <div>
+                  <div class="stat-label">🛡️ Défense</div>
+                  <div class="stat-value">${stat.defense.toFixed(2)}</div>
+                </div>
+              </div>
+              <div class="strength-badge">
+                <span style="color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase;">Force Globale: </span>
+                <span>${stat.strength.toFixed(2)}</span>
+              </div>
+            </div>
+          `).join('');
+        
+        container.innerHTML = html;
+      } catch (error) {
+        container.innerHTML = `<div class="error">⚠️ Erreur: ${error.message}</div>`;
+      }
+    }
+
+    async function loadBets() {
+      const container = document.getElementById('bets-container');
+      container.innerHTML = '<div class="loading">Chargement des paris...</div>';
+      
+      try {
+        const res = await fetch(`${API_URL}/my-bets`);
+        const data = await res.json();
+        const bets = Array.isArray(data) ? data : (data.bets || []);
+        
+        if (!bets.length) {
+          container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 60px;">💭 Vous n\'avez placé aucun pari pour le moment. Consultez les matchs disponibles!</p>';
+          return;
+        }
+        
+        container.innerHTML = `
+          <table class="bets-table">
+            <thead>
+              <tr>
+                <th>Type de Pari</th>
+                <th>Montant</th>
+                <th>Côte</th>
+                <th>Gain Potentiel</th>
+                <th>Statut</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${bets.map(bet => `
+                <tr>
+                  <td><strong>${bet.bet_type}</strong></td>
+                  <td><strong style="color: var(--primary);">${bet.amount}€</strong></td>
+                  <td>${bet.odds.toFixed(2)}</td>
+                  <td><strong style="color: var(--primary);">${(bet.amount * bet.odds).toFixed(2)}€</strong></td>
+                  <td><span style="padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; background: ${bet.status === 'won' ? 'rgba(0, 255, 135, 0.1)' : bet.status === 'lost' ? 'rgba(255, 51, 102, 0.1)' : 'rgba(255, 255, 255, 0.1)'}; color: ${bet.status === 'won' ? 'var(--primary)' : bet.status === 'lost' ? 'var(--secondary)' : 'var(--text-secondary)'};">${bet.status === 'pending' ? '⏳ En Attente' : bet.status === 'won' ? '✅ Gagné' : '❌ Perdu'}</span></td>
+                  <td>${new Date(bet.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="error">⚠️ Erreur: ${error.message}</div>`;
+      }
+    }
+
+    async function placeBet(eventId, betType, odds) {
+      const amount = prompt('💰 Montant du pari (€):');
+      if (!amount || isNaN(amount) || amount < 1) {
+        if (amount !== null) alert('⚠️ Montant invalide');
+        return;
+      }
+      
+      const potentialWin = (parseFloat(amount) * odds).toFixed(2);
+      const confirm = window.confirm(`Confirmer le pari?\n\n💰 Mise: ${amount}€\n📊 Côte: ${odds.toFixed(2)}\n🎯 Gain potentiel: ${potentialWin}€`);
+      
+      if (!confirm) return;
+      
+      try {
+        const res = await fetch(`${API_URL}/bets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_id: eventId,
+            user_id: 1,
+            bet_type: betType,
+            amount: parseFloat(amount),
+            odds: odds
+          })
+        });
+        
+        if (res.ok) {
+          alert('✅ Pari placé avec succès! Bonne chance! 🍀');
+          loadEvents();
+        } else {
+          alert('❌ Erreur: ' + (await res.text()));
+        }
+      } catch (error) {
+        alert('❌ Erreur: ' + error.message);
+      }
+    }
+
+    loadEvents();
+  </script>
+</body>
+</html>
