@@ -2,8 +2,15 @@
 Test des 3 agents entraînés avec visualisation
 """
 
+import sys
+import os
 import gymnasium as gym
 from stable_baselines3 import PPO, DQN, SAC
+
+# Ajouter le répertoire parent au chemin Python
+script_dir = os.path.dirname(__file__)
+project_dir = os.path.join(script_dir, '..')
+models_dir = os.path.join(project_dir, "models")
 
 print("=" * 70)
 print("🎮 TEST DES AGENTS ENTRAÎNÉS")
@@ -17,8 +24,8 @@ env_cartpole = gym.make("CartPole-v1", render_mode="human")
 
 # Charger les modèles pour CartPole
 models_cartpole = {
-    "PPO": PPO.load("models/ppo_cartpole", env=env_cartpole),
-    "DQN": DQN.load("models/dqn_cartpole", env=env_cartpole),
+    "PPO": PPO.load(os.path.join(models_dir, "ppo_cartpole"), env=env_cartpole),
+    "DQN": DQN.load(os.path.join(models_dir, "dqn_cartpole"), env=env_cartpole),
 }
 
 for algo_name, model in models_cartpole.items():
@@ -55,7 +62,7 @@ print("-" * 70)
 
 env_pendulum = gym.make("Pendulum-v1", render_mode="human")
 
-model_sac = SAC.load("models/sac_pendulum", env=env_pendulum)
+model_sac = SAC.load(os.path.join(models_dir, "sac_pendulum"), env=env_pendulum)
 
 print(f"\n🎬 Test de SAC sur Pendulum-v1...")
 print(f"   Vous verrez une fenêtre avec le pendule !")

@@ -6,7 +6,9 @@ import sys
 import os
 
 # Ajouter le répertoire parent au chemin Python
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+script_dir = os.path.dirname(__file__)
+project_dir = os.path.join(script_dir, '..')
+sys.path.insert(0, project_dir)
 
 import gymnasium as gym
 from stable_baselines3 import PPO, DQN, A2C
@@ -19,11 +21,12 @@ print("=" * 70)
 # Créer l'environnement avec rendu Pygame
 env = SnakeEnv(grid_size=10, render_mode="human")
 
-# Charger les modèles
+# Charger les modèles avec chemins absolus
+models_dir = os.path.join(project_dir, "models")
 models = {
-    "PPO": PPO.load("models/ppo_snake"),
-    "DQN": DQN.load("models/dqn_snake"),
-    "A2C": A2C.load("models/a2c_snake"),
+    "PPO": PPO.load(os.path.join(models_dir, "ppo_snake")),
+    "DQN": DQN.load(os.path.join(models_dir, "dqn_snake")),
+    "A2C": A2C.load(os.path.join(models_dir, "a2c_snake")),
 }
 
 for algo_name, model in models.items():
