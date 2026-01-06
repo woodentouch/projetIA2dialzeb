@@ -1,32 +1,74 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
 # Python
 __pycache__/
-*.py[cod]
+*. py[cod]
 *$py.class
-venv/
-.venv/
-env/
-
-# Testing
-coverage/
-
-# Production
+*.so
+.Python
 build/
 dist/
+downloads/
+eggs/
+. eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*. egg-info/
+.installed. cfg
+*.egg
 
-# Misc
+# Virtual Environment
+venv/
+env/
+ENV/
+. venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.env. local
+
+# macOS
+.DS_Store
+. AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+. Spotlight-V100
+. TemporaryItems
+.Trashes
+.VolumeIcon. icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.atremes
+
+# Results (optionnel - tu peux vouloir les commit)
+# results/*. png
+
+# Streamlit cache
+.streamlit/
